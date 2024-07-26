@@ -1,4 +1,4 @@
-package com.kenny.sdeappbackend;
+package com.kenny.sdeappbackend.repo;
 
 import com.kenny.sdeappbackend.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,5 +1,6 @@
 package com.kenny.sdeappbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.kenny.sdeappbackend.enums.Department;
 import com.kenny.sdeappbackend.enums.Role;
 import jakarta.persistence.*;
@@ -61,4 +62,8 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    @JsonBackReference
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Token> tokens;
 }
