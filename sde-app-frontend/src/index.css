@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes sparkle {
+    0% {
+      transform: scale(0) rotate(0deg);
+    }
+    50% {
+      transform: scale(1) rotate(180deg);
+    }
+    100% {
+      transform: scale(0) rotate(360deg);
+    }
+  }
