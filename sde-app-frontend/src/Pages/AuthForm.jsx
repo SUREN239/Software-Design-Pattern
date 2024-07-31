@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaCalendarAlt } from 'react-icons/fa';
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaCalendarAlt, FaUser, FaBuilding, FaUserTag } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from './Web/UserContext';
 
 const AuthForm = ({ onLogin }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
+    const [department, setDepartment] = useState('');
+    const [role, setRole] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isLogin, setIsLogin] = useState(true);
     const { setUsername } = useUser();
@@ -13,22 +16,26 @@ const AuthForm = ({ onLogin }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log(isLogin ? 'Login attempt:' : 'Registration attempt:', { email, password });
-        
-        if (email === 'admin@staffscheduler.com') {
-            setUsername('Admin');
-            onLogin('admin');
-          } else if (email.endsWith('@academic.staffscheduler.com')) {
-            setUsername('Academic Staff');
-            onLogin('academic');
-          } else if (email.endsWith('@staffscheduler.com')) {
-            setUsername('Non-Academic Staff');
-            onLogin('non-academic');
-          } else {
-            alert('Invalid credentials');
-          }
-        };
-
+        if (isLogin) {
+            console.log('Login attempt:', { email, password });
+            if (email === 'admin@staffscheduler.com') {
+                setUsername('Admin');
+                onLogin('admin');
+            } else if (email.endsWith('@academic.staffscheduler.com')) {
+                setUsername('Academic Staff');
+                onLogin('academic');
+            } else if (email.endsWith('@staffscheduler.com')) {
+                setUsername('Non-Academic Staff');
+                onLogin('non-academic');
+            } else {
+                alert('Invalid credentials');
+            }
+        } else {
+            console.log('Registration attempt:', { name, email, password, department, role });
+            // Here you would typically send a registration request to your backend
+            alert('Registration functionality not implemented yet');
+        }
+    };
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -65,11 +72,10 @@ const AuthForm = ({ onLogin }) => {
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-purple-50 opacity-50"></div>
                 <div className="absolute inset-0 opacity-[0.02] bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22%23000000%22%20fill-opacity%3D%221%22%20fill-rule%3D%22evenodd%22%3E%3Ccircle%20cx%3D%223%22%20cy%3D%223%22%20r%3D%223%22%2F%3E%3Ccircle%20cx%3D%2213%22%20cy%3D%2213%22%20r%3D%223%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E')] [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
                 <div className="w-full max-w-md z-10 space-y-8">
-                <div className="text-center">
+                    <div className="text-center">
                         <div className="inline-block p-4 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full shadow-lg">
                             <FaCalendarAlt className="text-4xl text-white" />
                         </div>
-                        {/* <h1 className="mt-4 text-3xl font-bold text-indigo-900">Staff Scheduler</h1> */}
                     </div>
                     <div className="md:hidden text-center mb-6">
                         <FaCalendarAlt className="text-5xl mx-auto text-indigo-600 mb-2" />
@@ -84,6 +90,21 @@ const AuthForm = ({ onLogin }) => {
                     </header>
 
                     <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+                        {!isLogin && (
+                            <div className="relative">
+                                <input
+                                    id="name"
+                                    name="name"
+                                    type="text"
+                                    required
+                                    className="w-full px-4 py-2 md:py-3 rounded-lg text-gray-700 bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 pl-10 font-sans text-sm md:text-base"
+                                    placeholder="Full Name"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                />
+                                <FaUser className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
+                            </div>
+                        )}
                         <div className="relative">
                             <input
                                 id="email"
@@ -117,6 +138,42 @@ const AuthForm = ({ onLogin }) => {
                                 {showPassword ? <FaEyeSlash /> : <FaEye />}
                             </button>
                         </div>
+                        {!isLogin && (
+                            <>
+                                <div className="relative">
+                                    <select
+                                        id="department"
+                                        name="department"
+                                        required
+                                        className="w-full px-4 py-2 md:py-3 rounded-lg text-gray-700 bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 pl-10 font-sans text-sm md:text-base"
+                                        value={department}
+                                        onChange={(e) => setDepartment(e.target.value)}
+                                    >
+                                        <option value="">Select Department</option>
+                                        <option value="IT">IT</option>
+                                        <option value="HR">HR</option>
+                                        <option value="FINANCE">Finance</option>
+                                        <option value="MARKETING">Marketing</option>
+                                    </select>
+                                    <FaBuilding className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
+                                </div>
+                                <div className="relative">
+                                    <select
+                                        id="role"
+                                        name="role"
+                                        required
+                                        className="w-full px-4 py-2 md:py-3 rounded-lg text-gray-700 bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 pl-10 font-sans text-sm md:text-base"
+                                        value={role}
+                                        onChange={(e) => setRole(e.target.value)}
+                                    >
+                                        <option value="">Select Role</option>
+                                        <option value="ADMIN">Admin</option>
+                                        <option value="STAFF">Staff</option>
+                                    </select>
+                                    <FaUserTag className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
+                                </div>
+                            </>
+                        )}
                         {isLogin && (
                             <div className="flex items-center justify-between text-sm">
                                 <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500 font-sans">
