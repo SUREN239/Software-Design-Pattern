@@ -1,91 +1,142 @@
-// UserManagement.js
-import React, { useState } from 'react';
-import { FaUserPlus, FaUserEdit, FaUserMinus } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const UserManagement = () => {
-  const [users, setUsers] = useState([
-    { id: 1, name: 'John Doe', email: 'john@staffscheduler.com', role: 'Academic Staff' },
-    { id: 2, name: 'Jane Smith', email: 'jane@staffscheduler.com', role: 'Non-Academic Staff' },
-  ]);
-
+  const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState({ name: '', email: '', role: '' });
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const addUser = () => {
-    setUsers([...users, { ...newUser, id: users.length + 1 }]);
-    setNewUser({ name: '', email: '', role: '' });
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('/api/users');
+      if (Array.isArray(response.data)) {
+        setUsers(response.data);
+      } else {
+        console.error('Expected an array of users, but got:', response.data);
+        setUsers([]);
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      setError('Failed to fetch users. Please try again later.');
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const updateUser = (id, updatedUser) => {
-    setUsers(users.map(user => user.id === id ? { ...user, ...updatedUser } : user));
+  const addUser = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      await axios.post('/api/users', newUser);
+      setNewUser({ name: '', email: '', role: '' });
+      fetchUsers();
+    } catch (error) {
+      console.error('Error adding user:', error);
+      setError('Failed to add user. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const deleteUser = (id) => {
-    setUsers(users.filter(user => user.id !== id));
+  const deleteUser = async (id) => {
+    try {
+      setLoading(true);
+      await axios.delete(`/api/users/${id}`);
+      fetchUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      setError('Failed to delete user. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (error) {
+    return <div className="text-red-500 p-4">{error}</div>;
+  }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold mb-4">User Management</h2>
-        <div className="flex space-x-4 mb-4">
+    <div className="p-6">
+      <h2 className="text-2xl font-bold mb-4">User Management</h2>
+      <form onSubmit={addUser} className="mb-8 bg-gray-50 p-4 rounded-lg shadow">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <input
             type="text"
             placeholder="Name"
+            className="p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
             value={newUser.name}
             onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-            className="border p-2 rounded"
+            required
           />
           <input
             type="email"
             placeholder="Email"
+            className="p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
             value={newUser.email}
             onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-            className="border p-2 rounded"
+            required
           />
-          <select
+          <input
+            type="text"
+            placeholder="Role"
+            className="p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
             value={newUser.role}
             onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-            className="border p-2 rounded"
-          >
-            <option value="">Select Role</option>
-            <option value="Academic Staff">Academic Staff</option>
-            <option value="Non-Academic Staff">Non-Academic Staff</option>
-          </select>
-          <button onClick={addUser} className="bg-green-500 text-white p-2 rounded flex items-center">
-            <FaUserPlus className="mr-2" /> Add User
-          </button>
+            required
+          />
         </div>
-      </div>
-      <div>
-        <h3 className="text-lg font-semibold mb-2">User List</h3>
-        <table className="min-w-full bg-white">
-          <thead>
-            <tr>
-              <th className="py-2 px-4 border-b">Name</th>
-              <th className="py-2 px-4 border-b">Email</th>
-              <th className="py-2 px-4 border-b">Role</th>
-              <th className="py-2 px-4 border-b">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map(user => (
-              <tr key={user.id}>
-                <td className="py-2 px-4 border-b">{user.name}</td>
-                <td className="py-2 px-4 border-b">{user.email}</td>
-                <td className="py-2 px-4 border-b">{user.role}</td>
-                <td className="py-2 px-4 border-b">
-                  <button onClick={() => updateUser(user.id, { name: 'Updated Name' })} className="text-blue-500 mr-2">
-                    <FaUserEdit />
-                  </button>
-                  <button onClick={() => deleteUser(user.id)} className="text-red-500">
-                    <FaUserMinus />
-                  </button>
-                </td>
+        <button
+          type="submit"
+          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-150"
+          disabled={loading}
+        >
+          {loading ? 'Adding...' : 'Add User'}
+        </button>
+      </form>
+      {loading ? (
+        <div className="flex justify-center items-center h-32">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      ) : users.length > 0 ? (
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {users.map((user) => (
+                <tr key={user.id}>
+                  <td className="px-6 py-4 whitespace-nowrap">{user.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{user.role}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <button
+                      className="text-red-600 hover:text-red-900 transition-colors duration-150"
+                      onClick={() => deleteUser(user.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="text-center text-gray-500">No users found.</p>
+      )}
     </div>
   );
 };

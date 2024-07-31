@@ -1,83 +1,39 @@
-// ScheduleManagement.js
 import React, { useState } from 'react';
-import { FaCalendarPlus, FaExclamationTriangle } from 'react-icons/fa';
 
 const ScheduleManagement = () => {
   const [schedules, setSchedules] = useState([
-    { id: 1, title: 'Math 101', room: 'A101', start: '2024-03-01T09:00', end: '2024-03-01T10:30' },
-    { id: 2, title: 'English 201', room: 'B205', start: '2024-03-01T11:00', end: '2024-03-01T12:30' },
+    { id: 1, name: 'Morning Shift', startTime: '08:00', endTime: '16:00' },
+    { id: 2, name: 'Evening Shift', startTime: '16:00', endTime: '00:00' },
+    { id: 3, name: 'Night Shift', startTime: '00:00', endTime: '08:00' },
   ]);
 
-  const [newSchedule, setNewSchedule] = useState({ title: '', room: '', start: '', end: '' });
-
-  const addSchedule = () => {
-    setSchedules([...schedules, { ...newSchedule, id: schedules.length + 1 }]);
-    setNewSchedule({ title: '', room: '', start: '', end: '' });
-  };
-
-  const resolveConflict = (id) => {
-    console.log(`Resolving conflict for schedule ${id}`);
-  };
-
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Schedule Management</h2>
-        <div className="flex space-x-4 mb-4">
-          <input
-            type="text"
-            placeholder="Title"
-            value={newSchedule.title}
-            onChange={(e) => setNewSchedule({ ...newSchedule, title: e.target.value })}
-            className="border p-2 rounded"
-          />
-          <input
-            type="text"
-            placeholder="Room"
-            value={newSchedule.room}
-            onChange={(e) => setNewSchedule({ ...newSchedule, room: e.target.value })}
-            className="border p-2 rounded"
-          />
-          <input
-            type="datetime-local"
-            value={newSchedule.start}
-            onChange={(e) => setNewSchedule({ ...newSchedule, start: e.target.value })}
-            className="border p-2 rounded"
-          />
-          <input
-            type="datetime-local"
-            value={newSchedule.end}
-            onChange={(e) => setNewSchedule({ ...newSchedule, end: e.target.value })}
-            className="border p-2 rounded"
-          />
-          <button onClick={addSchedule} className="bg-green-500 text-white p-2 rounded flex items-center">
-            <FaCalendarPlus className="mr-2" /> Add Schedule
-          </button>
-        </div>
+    <div className="p-6">
+      <h2 className="text-3xl font-bold mb-6 text-indigo-600">Schedule Management</h2>
+      <div className="mb-6">
+        <button className="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-600 transition-colors duration-300 shadow-md hover:shadow-lg transform hover:scale-105">
+          Add New Schedule
+        </button>
       </div>
-      <div>
-        <h3 className="text-lg font-semibold mb-2">Schedule List</h3>
-        <table className="min-w-full bg-white">
-          <thead>
+      <div className="overflow-x-auto bg-white rounded-lg shadow-md">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
             <tr>
-              <th className="py-2 px-4 border-b">Title</th>
-              <th className="py-2 px-4 border-b">Room</th>
-              <th className="py-2 px-4 border-b">Start</th>
-              <th className="py-2 px-4 border-b">End</th>
-              <th className="py-2 px-4 border-b">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Time</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Time</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody>
-            {schedules.map(schedule => (
-              <tr key={schedule.id}>
-                <td className="py-2 px-4 border-b">{schedule.title}</td>
-                <td className="py-2 px-4 border-b">{schedule.room}</td>
-                <td className="py-2 px-4 border-b">{new Date(schedule.start).toLocaleString()}</td>
-                <td className="py-2 px-4 border-b">{new Date(schedule.end).toLocaleString()}</td>
-                <td className="py-2 px-4 border-b">
-                  <button onClick={() => resolveConflict(schedule.id)} className="text-yellow-500">
-                    <FaExclamationTriangle />
-                  </button>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {schedules.map((schedule) => (
+              <tr key={schedule.id} className="hover:bg-gray-50 transition-colors duration-150">
+                <td className="px-6 py-4 whitespace-nowrap">{schedule.name}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{schedule.startTime}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{schedule.endTime}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <button className="text-blue-600 hover:text-blue-900 mr-2 transition-colors duration-150">Edit</button>
+                  <button className="text-red-600 hover:text-red-900 transition-colors duration-150">Delete</button>
                 </td>
               </tr>
             ))}

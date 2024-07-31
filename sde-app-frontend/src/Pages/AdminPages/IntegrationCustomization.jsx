@@ -1,66 +1,56 @@
-// IntegrationCustomization.js
-import React, { useState } from 'react';
-import { FaCog, FaDatabase } from 'react-icons/fa';
+import React from 'react';
 
 const IntegrationCustomization = () => {
-  const [settings, setSettings] = useState({
-    integrationKey: '',
-    theme: 'light',
-    language: 'en',
-  });
-
-  const updateSettings = () => {
-    console.log('Updating settings:', settings);
-  };
-
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold mb-4">Integration & Customization</h2>
-      <div className="space-y-4">
-        <div>
-          <label className="block mb-1">Integration API Key</label>
-          <input
-            type="text"
-            value={settings.integrationKey}
-            onChange={(e) => setSettings({ ...settings, integrationKey: e.target.value })}
-            className="w-full border p-2 rounded"
-          />
+    <div className="p-6">
+      <h2 className="text-3xl font-bold mb-6 text-indigo-600">Integration and Customization</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+          <h3 className="text-xl font-semibold mb-4 text-gray-700">Connected Systems</h3>
+          <ul className="list-disc list-inside space-y-2 text-gray-600">
+            <li>HR Management System</li>
+            <li>Payroll System</li>
+            <li>Time Tracking Software</li>
+          </ul>
+          <button className="mt-6 bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-300 shadow-md hover:shadow-lg transform hover:scale-105">
+            Add New Integration
+          </button>
         </div>
-        <div>
-          <label className="block mb-1">Theme</label>
-          <select
-            value={settings.theme}
-            onChange={(e) => setSettings({ ...settings, theme: e.target.value })}
-            className="w-full border p-2 rounded"
-          >
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-          </select>
+        <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+          <h3 className="text-xl font-semibold mb-4 text-gray-700">Customization Options</h3>
+          <form>
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="companyName">
+                Company Name
+              </label>
+              <input
+                className="shadow appearance-none border rounded-full w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
+                id="companyName"
+                type="text"
+                placeholder="Enter company name"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="timezone">
+                Default Timezone
+              </label>
+              <select
+                className="shadow appearance-none border rounded-full w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
+                id="timezone"
+              >
+                <option>UTC</option>
+                <option>EST</option>
+                <option>PST</option>
+              </select>
+            </div>
+            <button
+              className="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-600 transition-colors duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
+              type="submit"
+            >
+              Save Settings
+            </button>
+          </form>
         </div>
-        <div>
-          <label className="block mb-1">Language</label>
-          <select
-            value={settings.language}
-            onChange={(e) => setSettings({ ...settings, language: e.target.value })}
-            className="w-full border p-2 rounded"
-          >
-            <option value="en">English</option>
-            <option value="es">Spanish</option>
-            <option value="fr">French</option>
-          </select>
-        </div>
-        <button onClick={updateSettings} className="bg-purple-500 text-white p-2 rounded flex items-center">
-          <FaCog className="mr-2" /> Update Settings
-        </button>
-      </div>
-      <div>
-        <h3 className="text-lg font-semibold mb-2">Data Management</h3>
-        <button className="bg-red-500 text-white p-2 rounded mr-2 flex items-center">
-          <FaDatabase className="mr-2" /> Backup Data
-        </button>
-        <button className="bg-green-500 text-white p-2 rounded flex items-center">
-          <FaDatabase className="mr-2" /> Restore Data
-        </button>
       </div>
     </div>
   );

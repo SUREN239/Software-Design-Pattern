@@ -18,7 +18,7 @@ const AuthForm = ({ onLogin }) => {
         e.preventDefault();
         if (isLogin) {
             console.log('Login attempt:', { email, password });
-            if (email === 'admin@staffscheduler.com') {
+            if (email === 'admin@ski.ac.in') {
                 setUsername('Admin');
                 onLogin('admin');
             } else if (email.endsWith('@academic.staffscheduler.com')) {
@@ -150,10 +150,12 @@ const AuthForm = ({ onLogin }) => {
                                         onChange={(e) => setDepartment(e.target.value)}
                                     >
                                         <option value="">Select Department</option>
+                                        <option value="CSE">CSE</option>
+                                        <option value="ECE">ECE</option>
+                                        <option value="EEE">EEE</option>
+                                        <option value="MECH">MECH</option>
+                                        <option value="CIVIL">CIVIL</option>
                                         <option value="IT">IT</option>
-                                        <option value="HR">HR</option>
-                                        <option value="FINANCE">Finance</option>
-                                        <option value="MARKETING">Marketing</option>
                                     </select>
                                     <FaBuilding className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
                                 </div>
@@ -167,8 +169,9 @@ const AuthForm = ({ onLogin }) => {
                                         onChange={(e) => setRole(e.target.value)}
                                     >
                                         <option value="">Select Role</option>
+                                        <option value="USER">User</option>
                                         <option value="ADMIN">Admin</option>
-                                        <option value="STAFF">Staff</option>
+                                        <option value="DEVELOPER">Developer</option>
                                     </select>
                                     <FaUserTag className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400" />
                                 </div>
