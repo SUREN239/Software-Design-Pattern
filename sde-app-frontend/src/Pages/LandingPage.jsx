@@ -10,7 +10,7 @@ const LandingPage = () => {
 
     return (
         <div className="flex h-screen bg-gray-100">
-            {/* Sidebar */}
+            
             <div className={`bg-teal-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition duration-200 ease-in-out`}>
                 <a href="#" className="text-white flex items-center space-x-2 px-4">
                     <FaCalendarAlt className="w-8 h-8"/>
@@ -32,9 +32,9 @@ const LandingPage = () => {
                 </nav>
             </div>
 
-            {/* Content area */}
+            
             <div className="flex-1 flex flex-col overflow-hidden">
-                {/* Top bar */}
+               
                 <header className="bg-white shadow-md">
                     <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                         <button onClick={toggleSidebar} className="text-gray-500 focus:outline-none focus:text-gray-700 md:hidden">
@@ -52,16 +52,16 @@ const LandingPage = () => {
                     </div>
                 </header>
 
-                {/* Main content */}
+                
                 <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
                     <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-                        {/* Replace with your content */}
+                        
                         <div className="px-4 py-6 sm:px-0">
                             <div className="border-4 border-dashed border-gray-200 rounded-lg h-96 flex items-center justify-center">
                                 <p className="text-2xl text-gray-500">Welcome to StaffScheduler Dashboard</p>
                             </div>
                         </div>
-                        {/* /End replace */}
+                       
                     </div>
                 </main>
             </div>

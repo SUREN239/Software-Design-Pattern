@@ -290,9 +290,7 @@ const AdminPage = () => {
         </Tooltip>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col bg-gray-100 dark:bg-gray-800 transition-all duration-300 overflow-hidden">
-        {/* Top Navigation Bar */}
         <header className="bg-white dark:bg-gray-900 shadow-md z-20 transition-all duration-300">
           <div className="container mx-auto px-4 py-3">
             <div className="flex flex-col md:flex-row justify-between items-center">
