@@ -1,6 +1,6 @@
 package com.kenny.sdeappbackend.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,15 +21,15 @@ public class Schedule {
     private String title;
     private LocalDateTime date;
     private LocalDateTime time;
+    private String assignedTo;
 
-    // Many-to-One relationship with User
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    @JsonManagedReference
+    @JsonIgnore
     private User user;
 
-    // Many-to-One relationship with Room
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
+    @JsonIgnore
     private Room room;
 }
