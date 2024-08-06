@@ -2,7 +2,9 @@ package com.kenny.sdeappbackend.service;
 
 import com.kenny.sdeappbackend.exception.ResourceNotFoundException;
 import com.kenny.sdeappbackend.model.LeaveEntity;
+import com.kenny.sdeappbackend.model.User;
 import com.kenny.sdeappbackend.repo.LeaveRepo;
+import com.kenny.sdeappbackend.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,9 @@ public class LeaveService {
     @Autowired
     private LeaveRepo leaveRepository;
 
+    @Autowired
+    private UserRepo userRepository;
+
     public List<LeaveEntity> getAllLeaves() {
         return leaveRepository.findAll();
     }
@@ -24,6 +29,10 @@ public class LeaveService {
     }
 
     public LeaveEntity createLeave(LeaveEntity leaveEntity) {
+        Long userId = leaveEntity.getUser().getId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
+        leaveEntity.setUser(user);
         return leaveRepository.save(leaveEntity);
     }
 
@@ -33,7 +42,12 @@ public class LeaveService {
             leaveEntity.setEndDate(leaveDetails.getEndDate());
             leaveEntity.setReason(leaveDetails.getReason());
             leaveEntity.setApproved(leaveDetails.isApproved());
-            leaveEntity.setUser(leaveDetails.getUser());
+
+            Long userId = leaveDetails.getUser().getId();
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
+            leaveEntity.setUser(user);
+
             return leaveRepository.save(leaveEntity);
         }).orElseThrow(() -> new ResourceNotFoundException("Leave not found with id " + id));
     }

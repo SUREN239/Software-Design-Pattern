@@ -2,7 +2,9 @@ package com.kenny.sdeappbackend.service;
 
 import com.kenny.sdeappbackend.exception.ResourceNotFoundException;
 import com.kenny.sdeappbackend.model.Resource;
+import com.kenny.sdeappbackend.model.User;
 import com.kenny.sdeappbackend.repo.ResourceRepo;
+import com.kenny.sdeappbackend.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,9 @@ public class ResourceService {
     @Autowired
     private ResourceRepo resourceRepository;
 
+    @Autowired
+    private UserRepo userRepository;
+
     public List<Resource> getAllResources() {
         return resourceRepository.findAll();
     }
@@ -24,6 +29,10 @@ public class ResourceService {
     }
 
     public Resource createResource(Resource resource) {
+        Long managerId = resource.getManager().getId();
+        User manager = userRepository.findById(managerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Manager not found with id " + managerId));
+        resource.setManager(manager);
         return resourceRepository.save(resource);
     }
 
@@ -31,7 +40,12 @@ public class ResourceService {
         return resourceRepository.findById(id).map(resource -> {
             resource.setName(resourceDetails.getName());
             resource.setType(resourceDetails.getType());
-            resource.setManager(resourceDetails.getManager());
+
+            Long managerId = resourceDetails.getManager().getId();
+            User manager = userRepository.findById(managerId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Manager not found with id " + managerId));
+            resource.setManager(manager);
+
             return resourceRepository.save(resource);
         }).orElseThrow(() -> new ResourceNotFoundException("Resource not found with id " + id));
     }

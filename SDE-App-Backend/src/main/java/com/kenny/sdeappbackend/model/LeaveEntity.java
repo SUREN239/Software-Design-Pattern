@@ -26,6 +26,5 @@ public class LeaveEntity {
     // Many-to-One relationship with User
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    @JsonManagedReference
     private User user;
 }
