@@ -25,7 +25,8 @@ public class SecurityConfiguration {
     private final LogoutSuccessHandler logoutSuccessHandler;
 
     private static final String[] PublicEndPoints = {
-            "api/v1/auth/**"
+            "api/v1/auth/**",
+            "swagger-ui/**"
     };
 
     @Bean
@@ -50,4 +51,3 @@ public class SecurityConfiguration {
         return http.build();
     }
 }
-

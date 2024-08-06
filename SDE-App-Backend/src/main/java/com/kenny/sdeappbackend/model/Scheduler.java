@@ -23,8 +23,7 @@ public class Scheduler {
     private LocalDateTime endTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "staff_id")
+    @JoinColumn(name = "user_id")
     @JsonIgnore
-    private Staff staff;
+    private User user;
 }
-
