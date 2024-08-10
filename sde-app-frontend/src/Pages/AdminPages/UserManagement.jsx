@@ -1,142 +1,272 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { FaUserPlus, FaEdit, FaTrash, FaSearch } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast, Toaster } from 'react-hot-toast';
+import { ClipLoader } from 'react-spinners';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
-  const [newUser, setNewUser] = useState({ name: '', email: '', role: '' });
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [newUser, setNewUser] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    role: 'staff',
+    department: '',
+  });
 
   useEffect(() => {
     fetchUsers();
   }, []);
 
   const fetchUsers = async () => {
+    setIsLoading(true);
     try {
-      setLoading(true);
-      const response = await axios.get('/api/users');
-      if (Array.isArray(response.data)) {
-        setUsers(response.data);
-      } else {
-        console.error('Expected an array of users, but got:', response.data);
-        setUsers([]);
-      }
+      const response = await axios.get('http://localhost:8080/api/users');
+      setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
-      setError('Failed to fetch users. Please try again later.');
-      setUsers([]);
+      toast.error('Failed to fetch users. Please try again.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const addUser = async (e) => {
+  const handleUserSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
-      setLoading(true);
-      await axios.post('/api/users', newUser);
-      setNewUser({ name: '', email: '', role: '' });
-      fetchUsers();
+      if (editingUser) {
+        const response = await axios.put(`http://localhost:8080/api/users/${editingUser.id}`, newUser);
+        setUsers(users.map(user => user.id === editingUser.id ? response.data : user));
+        toast.success('User updated successfully!');
+      } else {
+        const response = await axios.post('http://localhost:8080/api/users', newUser);
+        setUsers([...users, response.data]);
+        toast.success('User added successfully!');
+      }
+      setNewUser({ firstName: '', lastName: '', email: '', role: 'staff', department: '' });
+      setEditingUser(null);
+      setIsModalOpen(false);
     } catch (error) {
-      console.error('Error adding user:', error);
-      setError('Failed to add user. Please try again.');
+      console.error('Error submitting user:', error);
+      toast.error(editingUser ? 'Failed to update user. Please try again.' : 'Failed to add user. Please try again.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   const deleteUser = async (id) => {
-    try {
-      setLoading(true);
-      await axios.delete(`/api/users/${id}`);
-      fetchUsers();
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      setError('Failed to delete user. Please try again.');
-    } finally {
-      setLoading(false);
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      setIsLoading(true);
+      try {
+        await axios.delete(`http://localhost:8080/api/users/${id}`);
+        setUsers(users.filter(user => user.id !== id));
+        toast.success('User deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        toast.error('Failed to delete user. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
-  if (error) {
-    return <div className="text-red-500 p-4">{error}</div>;
-  }
+  const openEditModal = (user) => {
+    setEditingUser(user);
+    setNewUser({ ...user });
+    setIsModalOpen(true);
+  };
+
+  const filteredUsers = users.filter(user =>
+    `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.department.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">User Management</h2>
-      <form onSubmit={addUser} className="mb-8 bg-gray-50 p-4 rounded-lg shadow">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          <input
-            type="text"
-            placeholder="Name"
-            className="p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
-            value={newUser.name}
-            onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-            required
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            className="p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
-            value={newUser.email}
-            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-            required
-          />
-          <input
-            type="text"
-            placeholder="Role"
-            className="p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
-            value={newUser.role}
-            onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-            required
-          />
+    <div className="min-h-screen bg-gray-100 p-8">
+      <Toaster position="top-right" />
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-indigo-600">User Management</h1>
+          <button
+            onClick={() => {
+              setEditingUser(null);
+              setNewUser({ firstName: '', lastName: '', email: '', role: 'staff', department: '' });
+              setIsModalOpen(true);
+            }}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            <FaUserPlus className="inline-block mr-2" />
+            Add New User
+          </button>
         </div>
-        <button
-          type="submit"
-          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-150"
-          disabled={loading}
-        >
-          {loading ? 'Adding...' : 'Add User'}
-        </button>
-      </form>
-      {loading ? (
-        <div className="flex justify-center items-center h-32">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+
+        <div className="mb-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search users..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md pl-10 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          </div>
         </div>
-      ) : users.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">{user.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{user.role}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <button
-                      className="text-red-600 hover:text-red-900 transition-colors duration-150"
-                      onClick={() => deleteUser(user.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
+
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <ClipLoader color="#4F46E5" size={50} />
+          </div>
+        ) : (
+          <div className="bg-white shadow overflow-hidden sm:rounded-md">
+            <ul className="divide-y divide-gray-200">
+              {filteredUsers.map((user) => (
+                <li key={user.id}>
+                  <div className="px-4 py-4 flex items-center sm:px-6">
+                    <div className="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between">
+                      <div>
+                        <h3 className="text-lg leading-6 font-medium text-gray-900">
+                          {user.firstName} {user.lastName}
+                        </h3>
+                        <p className="mt-1 text-sm text-gray-500">
+                          {user.email} | {user.role} | {user.department}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="ml-5 flex-shrink-0">
+                      <button
+                        onClick={() => openEditModal(user)}
+                        className="mr-2 text-indigo-600 hover:text-indigo-900"
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        onClick={() => deleteUser(user.id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </div>
+                </li>
               ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="text-center text-gray-500">No users found.</p>
-      )}
+            </ul>
+          </div>
+        )}
+
+        <AnimatePresence>
+          {isModalOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+            >
+              <motion.div
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 50, opacity: 0 }}
+                className="bg-white rounded-xl p-8 w-full max-w-md"
+              >
+                <h2 className="text-2xl font-semibold mb-4">
+                  {editingUser ? 'Edit User' : 'Add New User'}
+                </h2>
+                <form onSubmit={handleUserSubmit}>
+                  <div className="mb-4">
+                    <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+                      First Name
+                    </label>
+                    <input
+                      type="text"
+                      id="firstName"
+                      value={newUser.firstName}
+                      onChange={(e) => setNewUser({ ...newUser, firstName: e.target.value })}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      required
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+                      Last Name
+                    </label>
+                    <input
+                      type="text"
+                      id="lastName"
+                      value={newUser.lastName}
+                      onChange={(e) => setNewUser({ ...newUser, lastName: e.target.value })}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      required
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      value={newUser.email}
+                      onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      required
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                      Role
+                    </label>
+                    <select
+                      id="role"
+                      value={newUser.role}
+                      onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                      <option value="staff">Staff</option>
+                      <option value="manager">Manager</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                  <div className="mb-4">
+                    <label htmlFor="department" className="block text-sm font-medium text-gray-700">
+                      Department
+                    </label>
+                    <input
+                      type="text"
+                      id="department"
+                      value={newUser.department}
+                      onChange={(e) => setNewUser({ ...newUser, department: e.target.value })}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      required
+                    />
+                  </div>
+                  <div className="flex justify-end space-x-2 mt-6">
+                    <button
+                      type="button"
+                      onClick={() => setIsModalOpen(false)}
+                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                      {editingUser ? 'Update User' : 'Add User'}
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 };

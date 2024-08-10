@@ -6,6 +6,7 @@ import Login from './auth components/SignUp';
 import { UserProvider } from '../src/Pages/Web/UserContext';
 import AdminPage from './Pages/AdminPages/AdminPage';
 import AcademicStaffPage from './Pages/AcademicStaffPages/AcademicStaffPage';
+import Dashboard from './Pages/AdminPages/Dashboard';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -43,6 +44,7 @@ function App() {
               )
             } 
           />
+
           <Route 
             path="/academic-dashboard" 
             element={
@@ -63,6 +65,7 @@ function App() {
               )
             } 
           />
+          <Route path="/admin-dashboard-2" element={<Dashboard/>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Router>
