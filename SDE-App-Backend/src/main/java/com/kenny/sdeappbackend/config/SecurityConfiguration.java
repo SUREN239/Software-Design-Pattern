@@ -26,7 +26,9 @@ public class SecurityConfiguration {
 
     private static final String[] PublicEndPoints = {
             "api/v1/auth/**",
-            "swagger-ui/**"
+            "swagger-ui/**",
+            "api/events/**",
+            "users/**"
     };
 
     @Bean

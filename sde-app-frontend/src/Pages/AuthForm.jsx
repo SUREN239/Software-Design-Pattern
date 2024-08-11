@@ -21,7 +21,7 @@ const AuthForm = ({ onLogin }) => {
             if (email === 'admin@ski.ac.in') {
                 setUsername('Admin');
                 onLogin('admin');
-            } else if (email.endsWith('@academic.staffscheduler.com')) {
+            } else if (email.endsWith('@skct.edu.in')) {
                 setUsername('Academic Staff');
                 onLogin('academic');
             } else if (email.endsWith('@staffscheduler.com')) {
@@ -32,7 +32,6 @@ const AuthForm = ({ onLogin }) => {
             }
         } else {
             console.log('Registration attempt:', { name, email, password, department, role });
-            // Here you would typically send a registration request to your backend
             alert('Registration functionality not implemented yet');
         }
     };

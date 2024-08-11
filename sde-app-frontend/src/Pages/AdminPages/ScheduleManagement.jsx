@@ -50,9 +50,13 @@ const ScheduleManagement = () => {
   const fetchEvents = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('http://localhost:8080/api/events');
+      const response = await axios.get('http://localhost:7770/api/events');
       setEvents(response.data.map(event => ({
         ...event,
+        extendedProps: {
+          ...event.extendedProps,
+          assignees: event.extendedProps?.assignees || []
+        },
         color: priorityOptions.find(option => option.value === event.priority)?.color
       })));
     } catch (error) {
@@ -65,10 +69,10 @@ const ScheduleManagement = () => {
 
   const fetchAssignees = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/v/users/staff');
+      const response = await axios.get('http://localhost:7770/users/staff');
       setAssigneeOptions(response.data.map(user => ({
         value: user.id,
-        label: `${user.firstName} ${user.lastName}`
+        label: user.name
       })));
     } catch (error) {
       console.error('Error fetching assignees:', error);
@@ -89,9 +93,15 @@ const ScheduleManagement = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:8080/api/events', newTask);
+      const response = await axios.post('http://localhost:7770/api/events', {
+        ...newTask
+      });
       const newEvent = {
         ...response.data,
+        extendedProps: {
+          ...response.data.extendedProps,
+          assignees: response.data.extendedProps?.assignees || []
+        },
         color: priorityOptions.find(option => option.value === response.data.priority)?.color
       };
       setEvents([...events, newEvent]);
@@ -119,7 +129,7 @@ const ScheduleManagement = () => {
     if (window.confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'?`)) {
       setIsLoading(true);
       try {
-        await axios.delete(`http://localhost:8080/api/events/${clickInfo.event.id}`);
+        await axios.delete(`http://localhost:7770/api/events/${clickInfo.event.id}`);
         setEvents(events.filter(event => event.id !== clickInfo.event.id));
         toast.success('Event deleted successfully!');
       } catch (error) {
@@ -147,6 +157,19 @@ const ScheduleManagement = () => {
       fontWeight: 'bold',
     }),
   };
+
+  const renderEventContent = (eventInfo) => {
+    return (
+      <div className="p-1">
+        <div className="font-semibold text-sm truncate">{eventInfo.event.title}</div>
+        <div className="text-xs truncate">
+          {eventInfo.event.extendedProps.assignees && eventInfo.event.extendedProps.assignees.length > 0
+            ? eventInfo.event.extendedProps.assignees.join(', ')
+            : 'No assignees'}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-100 p-8">
@@ -302,14 +325,5 @@ const ScheduleManagement = () => {
     </div>
   );
 };
-
-const renderEventContent = (eventInfo) => {
-  return (
-    <div className="p-1">
-      <div className="font-semibold text-sm truncate">{eventInfo.event.title}</div>
-      <div className="text-xs truncate">{eventInfo.event.extendedProps.assignees.join(', ')}</div>
-    </div>
-  )
-}
 
 export default ScheduleManagement;
