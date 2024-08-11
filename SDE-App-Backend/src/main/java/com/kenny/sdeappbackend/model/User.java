@@ -69,7 +69,7 @@ public class User implements UserDetails {
     private List<Token> tokens;
 
     @ManyToOne
-    @JoinColumn(name = "event_id", nullable = false)
+    @JoinColumn(name = "event_id")
     private Event event;
 
 }
