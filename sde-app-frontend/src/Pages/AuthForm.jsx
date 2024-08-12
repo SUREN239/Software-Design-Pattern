@@ -274,7 +274,7 @@ const AuthForm = ({ onLogin }) => {
                 if (role.toLowerCase() === 'admin') {
                     navigate('/admin-dashboard');
                 } else {
-                    navigate('/user-dashboard');
+                    navigate('/academic-dashboard');
                 }
             }
         } catch (error) {

@@ -420,7 +420,7 @@ const ScheduleManagement = () => {
     description: '',
     assignees: [],
     priority: '',
-    deadline: '',
+    deadline: null,
     tags: [],
     start: '',
     end: '',
@@ -431,9 +431,9 @@ const ScheduleManagement = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   const priorityOptions = [
-    { value: 'low', label: 'Low', color: '#10B981' },
-    { value: 'medium', label: 'Medium', color: '#F59E0B' },
-    { value: 'high', label: 'High', color: '#EF4444' },
+    { value: 'LOW', label: 'Low', color: '#10B981' },
+    { value: 'MEDIUM', label: 'Medium', color: '#F59E0B' },
+    { value: 'HIGH', label: 'High', color: '#EF4444' },
   ];
 
   const tagOptions = [
@@ -451,14 +451,16 @@ const ScheduleManagement = () => {
   const fetchEvents = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('http://localhost:7777/api/events');
+      const response = await axios.get('http://localhost:7770/api/events');
       
       if (Array.isArray(response.data)) {
         setEvents(response.data.map(event => ({
           ...event,
+          start: new Date(event.start),
+          end: event.end ? new Date(event.end) : null,
           extendedProps: {
-            ...event.extendedProps,
-            assignees: event.extendedProps?.assignees || []
+            ...event,
+            assignees: event.userList?.map(user => user.name) || []
           },
           color: priorityOptions.find(option => option.value === event.priority)?.color
         })));
@@ -506,7 +508,7 @@ const ScheduleManagement = () => {
         title: newTask.title,
         description: newTask.description,
         assignees: newTask.assignees.map(assigneeId => ({ id: assigneeId })),
-        priority: newTask.priority.toUpperCase(),
+        priority: newTask.priority,
         deadline: newTask.deadline.toISOString(),
         tags: newTask.tags,
       };
@@ -515,8 +517,8 @@ const ScheduleManagement = () => {
       const newEvent = {
         ...response.data,
         extendedProps: {
-          ...response.data.extendedProps,
-          assignees: response.data.extendedProps?.assignees || []
+          ...response.data,
+          assignees: response.data.userList?.map(user => user.name) || []
         },
         color: priorityOptions.find(option => option.value === response.data.priority)?.color
       };
@@ -526,7 +528,7 @@ const ScheduleManagement = () => {
         description: '',
         assignees: [],
         priority: '',
-        deadline: '',
+        deadline: null,
         tags: [],
         start: '',
         end: '',
@@ -581,9 +583,9 @@ const ScheduleManagement = () => {
   };
 
   const renderEventContent = (eventInfo) => {
-    const isMultiDayEvent = !eventInfo.event.allDay &&
+    const isMultiDayEvent = eventInfo.event.end && !eventInfo.event.allDay &&
       eventInfo.event.end.getDate() !== eventInfo.event.start.getDate();
-
+  
     return (
       <div className={`p-1 ${isMultiDayEvent ? 'multi-day-event' : ''}`}>
         <div className="font-semibold text-sm truncate">{eventInfo.event.title}</div>

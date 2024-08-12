@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,12 +32,19 @@ public class EventService {
         return eventRepo.save(task);
     }
 
+    @Transactional
     public void deleteEvent(Long id) {
-        // Check if event exists before attempting to delete
-        if (eventRepo.existsById(id)) {
-            eventRepo.deleteById(id);
-        } else {
-            throw new RuntimeException("Event not found with id: " + id);
+        Event event = eventRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Event not found with id: " + id));
+
+        // Remove the event association from all users
+        List<User> users = event.getUserList();
+        for (User user : users) {
+            user.setEvent(null);
+            userRepo.save(user);
         }
+
+        // Now delete the event
+        eventRepo.delete(event);
     }
 }

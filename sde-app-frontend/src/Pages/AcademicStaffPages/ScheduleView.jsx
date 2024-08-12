@@ -297,7 +297,6 @@
 // };
 
 // export default ScheduleView;
-
 import React, { useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -305,13 +304,11 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { Toaster, toast } from 'react-hot-toast';
 import { ClipLoader } from 'react-spinners';
-import TaskBoard from './TaskBoard';
-import { FaCalendar, FaColumns, FaList } from 'react-icons/fa';
-import { fetchEvents, fetchTasks } from '../../services/api';
+import { FaCalendar, FaList } from 'react-icons/fa';
+import { fetchEvents } from '../../services/api';
 
 const ScheduleView = () => {
   const [events, setEvents] = useState([]);
-  const [tasks, setTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeView, setActiveView] = useState('calendar');
 
@@ -320,8 +317,9 @@ const ScheduleView = () => {
   }, []);
 
   const fetchScheduleData = async () => {
+    setIsLoading(true);
     try {
-      const [eventsData] = await Promise.all([fetchEvents()]);
+      const eventsData = await fetchEvents();
       setEvents(eventsData.map(event => ({
         ...event,
         color: getPriorityColor(event.priority)
@@ -336,11 +334,11 @@ const ScheduleView = () => {
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case 'low':
+      case 'LOW':
         return '#10B981';
-      case 'medium':
+      case 'MEDIUM':
         return '#F59E0B';
-      case 'high':
+      case 'HIGH':
         return '#EF4444';
       default:
         return '#3B82F6';
@@ -364,35 +362,25 @@ const ScheduleView = () => {
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deadline</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {tasks.map((task) => (
-              <tr key={task.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{task.title}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{task.description}</td>
+            {events.map((event) => (
+              <tr key={event.id}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{event.title}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{event.description}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    task.status === 'completed' ? 'bg-green-100 text-green-800' :
-                    task.status === 'in-progress' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {task.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    task.priority === 'high' ? 'bg-red-100 text-red-800' :
-                    task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                    event.priority === 'HIGH' ? 'bg-red-100 text-red-800' :
+                    event.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
                     'bg-green-100 text-green-800'
                   }`}>
-                    {task.priority}
+                    {event.priority}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(task.dueDate).toLocaleDateString()}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(event.deadline).toLocaleDateString()}</td>
               </tr>
             ))}
           </tbody>
@@ -416,14 +404,6 @@ const ScheduleView = () => {
                 }`}
               >
                 <FaCalendar className="mr-2" /> Calendar
-              </button>
-              <button
-                onClick={() => setActiveView('board')}
-                className={`flex items-center px-4 py-2 rounded-lg ${
-                  activeView === 'board' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'
-                }`}
-              >
-                <FaColumns className="mr-2" /> Board
               </button>
               <button
                 onClick={() => setActiveView('list')}
@@ -455,8 +435,6 @@ const ScheduleView = () => {
                 height="auto"
               />
             </div>
-          ) : activeView === 'board' ? (
-            <TaskBoard tasks={tasks} onTaskUpdate={fetchScheduleData} />
           ) : (
             renderListView()
           )}
