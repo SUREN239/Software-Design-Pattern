@@ -25,7 +25,7 @@ export const updateTaskStatus = async (taskId, status) => {
 };
 
 export const submitTimeOffRequest = async (requestData) => {
-  const response = await api.post('/time-off-requests', requestData);
+  const response = await api.post('/timeoff/submit', requestData);
   return response.data;
 };
 

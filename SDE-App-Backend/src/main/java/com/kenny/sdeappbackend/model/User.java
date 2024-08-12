@@ -73,6 +73,9 @@ public class User implements UserDetails {
     @JsonBackReference
     private Event event;
 
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<TimeOffRequest> timeOffRequests;
 
 
 }
