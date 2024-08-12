@@ -68,8 +68,11 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Token> tokens;
 
+
     @ManyToOne
-    @JoinColumn(name = "event_id")
+    @JsonBackReference
     private Event event;
+
+
 
 }

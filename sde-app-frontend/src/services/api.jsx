@@ -4,9 +4,9 @@ const BASE_URL = 'http://localhost:7770/api';
 
 const api = axios.create({
   baseURL: BASE_URL,
-  headers: {
-    'Authorization': `Bearer ${localStorage.getItem('token')}`
-  }
+  // headers: {
+  //   'Authorization': `Bearer ${localStorage.getItem('token')}`
+  // }
 });
 
 export const fetchEvents = async (isPublic = true) => {

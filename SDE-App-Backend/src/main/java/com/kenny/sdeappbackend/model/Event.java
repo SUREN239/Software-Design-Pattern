@@ -1,6 +1,7 @@
 package com.kenny.sdeappbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.kenny.sdeappbackend.enums.Priority;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,10 +24,9 @@ public class Event {
     private String title;
     private String description;
 
-    @JsonBackReference
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<User> assignees;
-
+    @OneToMany(mappedBy = "event")
+    @JsonManagedReference
+    private List<User> userList;
 
     @Enumerated(EnumType.STRING)
     private Priority priority;
@@ -43,3 +43,4 @@ public class Event {
 
     private boolean isPublic;
 }
+

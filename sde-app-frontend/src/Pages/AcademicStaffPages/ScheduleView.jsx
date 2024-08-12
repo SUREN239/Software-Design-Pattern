@@ -321,12 +321,11 @@ const ScheduleView = () => {
 
   const fetchScheduleData = async () => {
     try {
-      const [eventsData, tasksData] = await Promise.all([fetchEvents(), fetchTasks()]);
+      const [eventsData] = await Promise.all([fetchEvents()]);
       setEvents(eventsData.map(event => ({
         ...event,
         color: getPriorityColor(event.priority)
       })));
-      setTasks(tasksData);
     } catch (error) {
       console.error('Error fetching schedule data:', error);
       toast.error('Failed to fetch schedule. Please try again.');

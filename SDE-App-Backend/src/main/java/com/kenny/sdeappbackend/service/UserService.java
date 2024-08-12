@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserService {
 
@@ -21,4 +23,13 @@ public class UserService {
         return userRepo.findByEmail(email).orElseThrow(() ->
                 new UsernameNotFoundException("User not found"));
     }
+
+    public Optional<User> getUserById(Long id) {
+        return userRepo.findById(id);
+    }
+
+    public User saveUser(User user) {
+        return userRepo.save(user);
+    }
+
 }

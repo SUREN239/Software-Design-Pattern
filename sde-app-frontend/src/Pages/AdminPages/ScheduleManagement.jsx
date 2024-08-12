@@ -451,18 +451,26 @@ const ScheduleManagement = () => {
   const fetchEvents = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('http://localhost:7770/api/events');
-      setEvents(response.data.map(event => ({
-        ...event,
-        extendedProps: {
-          ...event.extendedProps,
-          assignees: event.extendedProps?.assignees || []
-        },
-        color: priorityOptions.find(option => option.value === event.priority)?.color
-      })));
+      const response = await axios.get('http://localhost:7777/api/events');
+      
+      if (Array.isArray(response.data)) {
+        setEvents(response.data.map(event => ({
+          ...event,
+          extendedProps: {
+            ...event.extendedProps,
+            assignees: event.extendedProps?.assignees || []
+          },
+          color: priorityOptions.find(option => option.value === event.priority)?.color
+        })));
+      } else {
+        console.error('Unexpected response format:', response.data);
+        toast.error('Received unexpected data format from the server.');
+        setEvents([]);
+      }
     } catch (error) {
       console.error('Error fetching events:', error);
       toast.error('Failed to fetch events. Please try again.');
+      setEvents([]);
     } finally {
       setIsLoading(false);
     }
