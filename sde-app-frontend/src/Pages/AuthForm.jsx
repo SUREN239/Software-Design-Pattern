@@ -1,7 +1,12 @@
+
 // import React, { useState } from 'react';
 // import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaCalendarAlt, FaUser, FaBuilding, FaUserTag } from 'react-icons/fa';
 // import { useNavigate } from 'react-router-dom';
 // import { useUser } from './Web/UserContext';
+// import axios from 'axios';
+
+// // Set the base URL for your API
+// axios.defaults.baseURL = 'http://localhost:7770';
 
 // const AuthForm = ({ onLogin }) => {
 //     const [email, setEmail] = useState('');
@@ -14,27 +19,52 @@
 //     const { setUsername } = useUser();
 //     const navigate = useNavigate();
 
-//     const handleSubmit = (e) => {
+//     const handleSubmit = async (e) => {
 //         e.preventDefault();
-//         if (isLogin) {
-//             console.log('Login attempt:', { email, password });
-//             if (email === 'admin@ski.ac.in') {
-//                 setUsername('Admin');
-//                 onLogin('admin');
-//             } else if (email.endsWith('@skct.edu.in')) {
-//                 setUsername('Academic Staff');
-//                 onLogin('academic');
-//             } else if (email.endsWith('@staffscheduler.com')) {
-//                 setUsername('Non-Academic Staff');
-//                 onLogin('non-academic');
+//         try {
+//             let response;
+//             if (isLogin) {
+//                 response = await axios.post('/api/v1/auth/authenticate', {
+//                     email,
+//                     password
+//                 });
+//                 const { token, role, department } = response.data;
+//                 localStorage.setItem('token', token);
+//                 setUsername(email);
+//                 onLogin(role.toLowerCase());
+
+//                 // Navigate based on role
+//                 if (role.toLowerCase() === 'admin') {
+//                     navigate('/admin-dashboard');
+//                 } else {
+//                     navigate('/user-dashboard');
+//                 }
 //             } else {
-//                 alert('Invalid credentials');
+//                 response = await axios.post('/api/v1/auth/register', {
+//                     name,
+//                     email,
+//                     password,
+//                     department,
+//                     role
+//                 });
+//                 const { token } = response.data;
+//                 localStorage.setItem('token', token);
+//                 setUsername(name);
+//                 onLogin(role.toLowerCase());
+
+//                 // Navigate based on role for new registrations
+//                 if (role.toLowerCase() === 'admin') {
+//                     navigate('/admin-dashboard');
+//                 } else {
+//                     navigate('/academic-dashboard');
+//                 }
 //             }
-//         } else {
-//             console.log('Registration attempt:', { name, email, password, department, role });
-//             alert('Registration functionality not implemented yet');
+//         } catch (error) {
+//             console.error('Authentication error:', error);
+//             alert('Authentication failed. Please check your credentials.');
 //         }
 //     };
+
 
 //     const togglePasswordVisibility = () => {
 //         setShowPassword(!showPassword);
@@ -216,12 +246,13 @@
 
 // export default AuthForm;
 
-
 import React, { useState } from 'react';
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaCalendarAlt, FaUser, FaBuilding, FaUserTag } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from './Web/UserContext';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Set the base URL for your API
 axios.defaults.baseURL = 'http://localhost:7770';
@@ -251,6 +282,15 @@ const AuthForm = ({ onLogin }) => {
                 setUsername(email);
                 onLogin(role.toLowerCase());
 
+                toast.success('Login successful!', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                });
+
                 // Navigate based on role
                 if (role.toLowerCase() === 'admin') {
                     navigate('/admin-dashboard');
@@ -270,6 +310,15 @@ const AuthForm = ({ onLogin }) => {
                 setUsername(name);
                 onLogin(role.toLowerCase());
 
+                toast.success('Registration successful!', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                });
+
                 // Navigate based on role for new registrations
                 if (role.toLowerCase() === 'admin') {
                     navigate('/admin-dashboard');
@@ -279,10 +328,16 @@ const AuthForm = ({ onLogin }) => {
             }
         } catch (error) {
             console.error('Authentication error:', error);
-            alert('Authentication failed. Please check your credentials.');
+            toast.error('Authentication failed. Please check your credentials.', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
         }
     };
-
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -454,10 +509,22 @@ const AuthForm = ({ onLogin }) => {
                     <footer className="pt-4 border-t border-gray-200">
                         <p className="text-xs text-center text-gray-500 font-sans">
                             © 2024 Staff Scheduler. All rights reserved.
-                        </p>
+                            </p>
                     </footer>
                 </div>
             </div>
+            <ToastContainer 
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+            />
         </div>
     );
 };
