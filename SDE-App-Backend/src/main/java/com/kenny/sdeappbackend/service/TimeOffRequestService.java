@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -39,5 +40,9 @@ public class TimeOffRequestService {
         } else {
             throw new RuntimeException("User not found");
         }
+    }
+
+    public List<TimeOffRequest> getAllTimeOffRequests() {
+        return timeOffRequestRepository.findAll();
     }
 }

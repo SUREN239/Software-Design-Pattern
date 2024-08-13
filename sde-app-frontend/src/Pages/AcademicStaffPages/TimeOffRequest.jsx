@@ -343,6 +343,7 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import TimeOffStatus from './TimeOffStatus';
 import { submitTimeOffRequest } from '../../services/api';
+import moment from 'moment'; 
 
 const TimeOffRequest = ({ onRequestSubmitted }) => {
   const [startDateTime, setStartDateTime] = useState(null);
@@ -355,11 +356,18 @@ const TimeOffRequest = ({ onRequestSubmitted }) => {
     setIsSubmitting(true);
 
     try {
-      await submitTimeOffRequest({
-        startDateTime,
-        endDateTime,
+      // Format dates to match backend's expected format
+      const formattedStartDateTime = moment(startDateTime).format('YYYY-MM-DDTHH:mm:ss');
+      const formattedEndDateTime = moment(endDateTime).format('YYYY-MM-DDTHH:mm:ss');
+
+      const requestData = {
+        startDateTime: formattedStartDateTime,
+        endDateTime: formattedEndDateTime,
         reason
-      });
+      };
+
+      console.log('Submitting request:', requestData);
+      await submitTimeOffRequest(requestData);
       toast.success('Time off request submitted successfully');
       setStartDateTime(null);
       setEndDateTime(null);
@@ -367,12 +375,16 @@ const TimeOffRequest = ({ onRequestSubmitted }) => {
       onRequestSubmitted();
     } catch (error) {
       console.error('Error submitting time off request:', error);
-      toast.error('Failed to submit time off request. Please try again.');
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+        console.error('Response headers:', error.response.headers);
+      }
+      toast.error(`Failed to submit time off request: ${error.response?.data?.message || error.message}`);
     } finally {
       setIsSubmitting(false);
     }
   };
-
   return (
     <div className="bg-white p-8 rounded-xl shadow-lg max-w-4xl mx-auto">
       <h2 className="text-3xl font-bold mb-8 text-gray-800 text-center">Request Time Off</h2>

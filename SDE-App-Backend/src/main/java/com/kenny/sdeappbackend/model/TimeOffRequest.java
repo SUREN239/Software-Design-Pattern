@@ -1,5 +1,6 @@
 package com.kenny.sdeappbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,8 +26,8 @@ public class TimeOffRequest {
     @Column(length = 1000)
     private String reason;
 
+    @JsonBackReference
     @ManyToOne
     private User user;
-
 
 }

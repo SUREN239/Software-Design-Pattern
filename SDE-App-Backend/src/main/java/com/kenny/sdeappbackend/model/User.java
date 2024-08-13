@@ -2,6 +2,7 @@ package com.kenny.sdeappbackend.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.kenny.sdeappbackend.enums.Department;
 import com.kenny.sdeappbackend.enums.Role;
 import jakarta.persistence.*;
@@ -73,9 +74,8 @@ public class User implements UserDetails {
     @JsonBackReference
     private Event event;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "user")
-    @JsonIgnore
     private List<TimeOffRequest> timeOffRequests;
-
 
 }
